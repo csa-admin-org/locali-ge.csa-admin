@@ -13,5 +13,6 @@ gem "json"
 group :test do
   gem "minitest"
   gem "rack-test"
+  gem "webmock", require: "webmock/minitest"
 end
 

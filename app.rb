@@ -20,8 +20,8 @@ class App < Sinatra::Base
     begin
       member_params = Webhook.handle!(payload)
       logger.info member_params
-    rescue ArgumentError => e
-      logger.info e.message
+    rescue => e
+      logger.info "#{e.class} - #{e.message}"
     end
 
     status 204
@@ -35,6 +35,7 @@ class App < Sinatra::Base
 
     computed_hmac = Base64.strict_encode64(
       OpenSSL::HMAC.digest('sha256', secret, @request_body))
+    # TODO: Remove debug logging
     logger.info "Header HMAC: #{signature}"
     logger.info "Computed HMAC: #{computed_hmac}"
 
