@@ -1,0 +1,14 @@
+cocagne:
+  store_id: 31
+  api_endpoint: https://admin.cocagne.ch/api/v1/members
+  basket_sizes:
+    35087: 1 # Grande part
+  basket_complements:
+    34780: 9 # Oeufs 6 pièces
+    34781: 10 # Pain Cora blé 500g
+    34782: 12 # Pain Cora épeautre 450g
+    34783: 6 # Fromage frais
+    34787: 14 # Jus de pomme regarge
+  depots:
+    34088: 43 # 16 ch. Franconis 1290 Versoix
+    34087: 22 # 15 ch. de Roches 1208 Genève
