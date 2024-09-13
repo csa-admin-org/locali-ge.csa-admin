@@ -1,5 +1,7 @@
 # locali-ge.csa-admin.org
 
+[![Tests](https://github.com/csa-admin-org/locali-ge.csa-admin/actions/workflows/tests.yml/badge.svg)](https://github.com/csa-admin-org/locali-ge.csa-admin/actions/workflows/tests.yml)
+
 A small Sinatra app to handle locali-ge.ch WooCommerce webhooks and automatically create a new member in the CSA Admin organization.
 
 The mapping of the WooCommerce products to the CSA Admin organization resources is handled in the `config/mapping.yml` file. The `api_endpoint` of the CSA Admin API must be set in the `config/config.yml` file for each organization.
