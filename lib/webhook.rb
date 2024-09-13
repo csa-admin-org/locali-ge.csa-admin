@@ -54,7 +54,7 @@ class Webhook
 
   def basket_complements
     mapping_ids_for("basket_complements").map { |id|
-      { basket_complement_id: id, quanity: 1 }
+      { basket_complement_id: id, quantity: 1 }
     }
   end
 
