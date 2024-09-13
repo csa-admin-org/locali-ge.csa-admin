@@ -28,11 +28,17 @@ GEM
       minitest (>= 5.1)
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
+    addressable (2.8.7)
+      public_suffix (>= 2.0.2, < 7.0)
     base64 (0.2.0)
     bigdecimal (3.1.8)
     concurrent-ruby (1.3.4)
     connection_pool (2.4.1)
+    crack (1.0.0)
+      bigdecimal
+      rexml
     drb (2.2.1)
+    hashdiff (1.1.1)
     i18n (1.14.5)
       concurrent-ruby (~> 1.0)
     json (2.7.2)
@@ -41,6 +47,7 @@ GEM
     mustermann (3.0.3)
       ruby2_keywords (~> 0.0.1)
     nio4r (2.7.3)
+    public_suffix (6.0.1)
     puma (6.4.2)
       nio4r (~> 2.0)
     rack (3.1.7)
@@ -51,11 +58,16 @@ GEM
     rackup (2.1.0)
       rack (>= 3)
       webrick (~> 1.8)
+    rexml (3.3.7)
     ruby2_keywords (0.0.5)
     securerandom (0.3.1)
     tilt (2.4.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
+    webmock (3.23.1)
+      addressable (>= 2.8.0)
+      crack (>= 0.3.2)
+      hashdiff (>= 0.4.0, < 2.0.0)
     webrick (1.8.1)
 
 PLATFORMS
@@ -71,6 +83,7 @@ DEPENDENCIES
   rack-test
   rackup
   sinatra!
+  webmock
 
 RUBY VERSION
    ruby 3.3.5p100

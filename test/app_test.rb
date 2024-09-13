@@ -6,6 +6,7 @@ Bundler.require(:default, :test)
 require_relative '../app'
 require "minitest/autorun"
 
+
 class AppTest < Minitest::Test
   include Rack::Test::Methods
 
@@ -28,12 +29,36 @@ class AppTest < Minitest::Test
   end
 
   def test_valid_webhook_request
+    ENV["COCAGNE_API_TOKEN"] = "api-token-cocagne"
     payload = File.read('test/fixtures/order_created.json')
+    stub_request(:any, "https://admin.cocagne.test/api/v1/members")
+      .to_return(status: 201)
 
     request(payload)
 
     assert_equal 204, last_response.status
     assert_empty last_response.body
+
+    # assert_requested :post, "https://admin.cocagne.test/api/v1/members",
+    #   times: 1,
+    #   headers: {
+    #     "Content-Type" => "application/json",
+    #     "Authorization" => "Token token=api-token-cocagne"
+    #   },
+    #   body: {
+    #     name: "Doe John",
+    #     emails: "john@doe.ch",
+    #     phones: "079 123 45 67",
+    #     address: "Chemin de la Mairie, 1",
+    #     city: "Troinex",
+    #     zip: "1256",
+    #     country_code: "CH",
+    #     waiting_basket_size_id: 1,
+    #     waiting_depot_id: 22,
+    #     members_basket_complements_attributes: [
+    #       { basket_complement_id:10, quantity:1 }
+    #     ]
+    #   }.to_json
   end
 
   def test_unknown_store

@@ -1,4 +1,7 @@
 require 'yaml'
+require 'net/http'
+require 'json'
+require 'uri'
 
 class Webhook
   attr_reader :payload
@@ -14,6 +17,7 @@ class Webhook
   def handle!
     ensure_mapping!
 
+    # submit_member!(member_params)
     member_params
   end
 
@@ -23,12 +27,29 @@ class Webhook
     return if mapping
 
     store_name = @payload.dig("store", "name")
-    raise ArgumentError, "No mapping found for store: #{store_id} (#{store_name})"
+    raise "No mapping found for store: #{store_id} (#{store_name})"
+  end
+
+  def submit_member!(params)
+    http = Net::HTTP.new(api_uri.host, api_uri.port)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE if ENV["RACK_ENV"] == "test"
+
+    headers = {
+      "Content-Type" => "application/json",
+      "Authorization" => "Token token=#{api_token}"
+    }
+    request = Net::HTTP::Post.new(api_uri.path, headers)
+    request.body = params.to_json
+
+    response = http.request(request)
+    unless response.code == "201"
+      raise "Failed to create member: #{response.code}"
+    end
   end
 
   def member_params
     {
-      organization: organization,
       name: "#{billing["last_name"]} #{billing["first_name"]}",
       emails: billing["email"],
       phones: billing["phone"],
@@ -50,6 +71,16 @@ class Webhook
 
   def organization
     mapping.first
+  end
+
+  def api_token
+    ENV["#{organization.upcase}_API_TOKEN"]
+  end
+
+  def api_uri
+    url = mapping.last["api_endpoint"]
+    url.gsub!(/\.ch/, ".test") if ENV["RACK_ENV"] == "test"
+    URI.parse(url)
   end
 
   def basket_complements
