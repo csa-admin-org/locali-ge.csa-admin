@@ -10,8 +10,47 @@ cocagne:
     34783: 6 # Fromage frais
     34787: 14 # Jus de pomme regarge
   depots:
-    34088: 43 # 16 ch. Franconis 1290 Versoix
-    34087: 22 # 15 ch. de Roches 1208 Genève
+    35410: 15 # 23 ch. Sous-le-Crêt 1256 Troinex
+    35409: 26 # 8 rue Lissignol 1201 Genève
+    35408: 25 # 1A bd d'Ivoy 1205 Genève
+    35407: 5  # 3 ch. du 23 Août 1205 Genève
+    35406: 19 # 3 rue Verte 1205 Genève
+    35405: 18 # 32 av. de la Roseraie 1205 Genève
+    35404: 24 # 7 bd Carl-Vogt 1205 Genève
+    35403: 47 # 15 av. des Tilleuls 1203 Genève
+    35402: 34 # 7 rue Soubeyran 1203 Genève
+    34087: 7  # 14 ch. des Ouches 1203 Genève
+    34086: 39 # 43 rue Chabrey 1202 Genève
+    34077: 43 # 16 ch. Franconis 1290 Versoix
+    34076: 8  # 66 ch. des Plantées 1285 Athenaz
+    34075: 27 # 17 av. de France 1202 Genève
+    34074: 2  # 26 rue Carteret 1202 Genève
+    34073: 29 # 19 rue du Môle 1202 Genève
+    34072: 1  # 15 rue des Gares 1201 Genève
+    34071: 31 # 29 rue du Fort-Barreau 1201 Genève
+    34070: 32 # 3 rue du Midi 1201 Genève
+    34047: 28 # 41 rue Plantamour 1201 Genève
+    34046: 35 # 6 ch. Galiffe 1201 Genève
+    34045: 20 # 18 av. Dumas 1206 Genève
+    34044: 22 # 15 ch. de Roches 1208 Genève
+    34043: 45 # 2 quai du Cheval-Blanc 1227 Carouge
+    34042: 11 # 7 Vieux Lully 1233 Bernex
+    34041: 12 # 13 ch. des Épineuses 1233 Bernex
+    34040: 10 # 23 ch. du Guillon 1233 Bernex
+    34039: 6  # 26 rue du Grand-Bureau 1227 Acacias
+    34038: 21 # 16 ch des Tornalettes 1231 Conches
+    34037: 14 # 15 av. du Millénaire 1228 Plan-les-Ouates
+    34036: 17 # 14 pl. d'Armes 1227 Carouge
+    34035: 4  # 17 av. Bel-Air 1225 Chêne-Bourg
+    34034: 23 # 36 rue Agasse 1208 Genève
+    33584: 13 # 145 ch. de Verjus 1212 Grand-Lancy
+    33583: 3  # 153 rte de Chancy 1213 Onex
+    33582: 9  # 45 ch. de TireLonge 1213 Petit-Lancy
+    33581: 40 # 12 ch. du Québec 1214 Vernier
+    33580: 41 # 20 prom. de l'Aubier 1217 Meyrin
+    33579: 42 # 36 rue Sonnex 1218 Le Grand-Saconnex
+    33578: 37 # 158 rte d'Aïre 1219 Aïre
+    33577: 48 # 12 ch. de la Verseuse 1219 Le Lignon
 
 locali:
   store_id: 33
