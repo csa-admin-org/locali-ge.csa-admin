@@ -1,7 +1,7 @@
 {
   "id": 35255,
   "parent_id": 0,
-  "status": "postfi-redirected",
+  "status": "processing",
   "currency": "CHF",
   "version": "8.7.0",
   "prices_include_tax": true,
