@@ -67,7 +67,7 @@ locali:
     34096: 6 # Conches
 
 touviere:
-  store_id: 35
+  store_id: 34
   api_endpoint: https://admin.touviere.ch/api/v1/members
   basket_sizes:
     34834: 1 # Panier Couple
