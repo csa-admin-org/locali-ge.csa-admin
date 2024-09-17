@@ -35,9 +35,6 @@ class App < Sinatra::Base
 
     computed_hmac = Base64.strict_encode64(
       OpenSSL::HMAC.digest('sha256', secret, @request_body))
-    # TODO: Remove debug logging
-    logger.info "Header HMAC: #{signature}"
-    logger.info "Computed HMAC: #{computed_hmac}"
 
     unless signature && Rack::Utils.secure_compare(computed_hmac, signature)
       halt 403, 'Forbidden'

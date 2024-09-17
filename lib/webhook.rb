@@ -16,8 +16,9 @@ class Webhook
 
   def handle!
     ensure_mapping!
+    ensure_status_completed!
 
-    # submit_member!(member_params)
+    submit_member!(member_params) if test_env?
     member_params
   end
 
@@ -27,13 +28,20 @@ class Webhook
     return if mapping
 
     store_name = @payload.dig("store", "name")
-    raise "No mapping found for store: #{store_id} (#{store_name})"
+    raise "Skipped, no mapping found for store: #{store_id} (#{store_name})"
+  end
+
+  def ensure_status_completed!
+    status = @payload["status"]
+    unless status == "completed"
+      raise "Skipped, order status is not completed: #{status}"
+    end
   end
 
   def submit_member!(params)
     http = Net::HTTP.new(api_uri.host, api_uri.port)
     http.use_ssl = true
-    http.verify_mode = OpenSSL::SSL::VERIFY_NONE if ENV["RACK_ENV"] == "test"
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE if test_env?
 
     headers = {
       "Content-Type" => "application/json",
@@ -57,6 +65,7 @@ class Webhook
       city: billing["city"],
       zip: billing["postcode"],
       country_code: billing["country"],
+      note: "Commande locali-ge.ch ##{@payload["id"]}",
       waiting_basket_size_id: mapping_id_for("basket_sizes"),
       waiting_depot_id: mapping_id_for("depots"),
       members_basket_complements_attributes: basket_complements
@@ -79,7 +88,7 @@ class Webhook
 
   def api_uri
     url = mapping.last["api_endpoint"]
-    url.gsub!(/\.ch/, ".test") if ENV["RACK_ENV"] == "test"
+    url.gsub!(/\.ch/, ".test") if test_env?
     URI.parse(url)
   end
 
@@ -90,7 +99,7 @@ class Webhook
   end
 
   def mapping_id_for(type)
-    mapping.last[type].each { |product_id, id|
+    mapping.last[type]&.each { |product_id, id|
       return id if product_id.in?(product_ids)
     }
     nil
@@ -98,7 +107,7 @@ class Webhook
 
   def mapping_ids_for(type)
     ids = []
-    mapping.last[type].each { |product_id, id|
+    mapping.last[type]&.each { |product_id, id|
       ids << id if product_id.in?(product_ids)
     }
     ids
@@ -125,5 +134,9 @@ class Webhook
 
   def store_id
     @payload.dig("store", "id")
+  end
+
+  def test_env?
+    ENV["RACK_ENV"] == "test"
   end
 end
