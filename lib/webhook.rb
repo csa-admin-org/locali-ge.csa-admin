@@ -18,7 +18,7 @@ class Webhook
     ensure_mapping!
     ensure_status_completed!
 
-    submit_member!(member_params) if test_env?
+    submit_member!(member_params)
     member_params
   end
 
