@@ -52,20 +52,6 @@ cocagne:
     33578: 37 # 158 rte d'Aïre 1219 Aïre
     33577: 48 # 12 ch. de la Verseuse 1219 Le Lignon
 
-locali:
-  store_id: 33
-  api_endpoint: https://admin.panier-locali.ch/api/v1/members
-  basket_sizes:
-    34090: 1 # Panier famille ?
-  depots:
-    35412: 9 # Vernier (à confirmer)
-    35411: 7 # Meyrin Champs Fréchets (à confirmer)
-    34101: 4 # Servette
-    34099: 1 # Plainpalais
-    34100: 3 # Plan les Ouates Sciers (à confirmer)
-    34097: 2 # Meyrin Vergers
-    34096: 6 # Conches
-
 touviere:
   store_id: 34
   api_endpoint: https://admin.touviere.ch/api/v1/members
@@ -80,3 +66,17 @@ touviere:
     34132: 2 # Chêne-Bourg
     34131: 3 # Jonction
     34129: 1 # Domaine de la Touvière
+
+# locali:
+#   store_id: 33
+#   api_endpoint: https://admin.panier-locali.ch/api/v1/members
+#   basket_sizes:
+#     34090: 1 # Panier famille ?
+#   depots:
+#     35412: 9 # Vernier (à confirmer)
+#     35411: 7 # Meyrin Champs Fréchets (à confirmer)
+#     34101: 4 # Servette
+#     34099: 1 # Plainpalais
+#     34100: 3 # Plan les Ouates Sciers (à confirmer)
+#     34097: 2 # Meyrin Vergers
+#     34096: 6 # Conches
