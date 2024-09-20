@@ -16,9 +16,9 @@ class App < Sinatra::Base
     verify_signature!
     payload = parse_payload
 
-    logger.info payload
     begin
       member_params = Webhook.handle!(payload)
+      logger.info payload
       logger.info member_params
     rescue => e
       logger.info "#{e.class} - #{e.message}"

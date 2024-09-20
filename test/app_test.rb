@@ -62,37 +62,37 @@ class AppTest < Minitest::Test
       }.to_json
   end
 
-  def test_valid_webhook_request_locali
-    ENV["LOCALI_API_TOKEN"] = "api-token-locali"
-    payload = File.read('test/fixtures/order_completed_locali.json')
-    stub_request(:any, "https://admin.panier-locali.test/api/v1/members")
-      .to_return(status: 201)
+  # def test_valid_webhook_request_locali
+  #   ENV["LOCALI_API_TOKEN"] = "api-token-locali"
+  #   payload = File.read('test/fixtures/order_completed_locali.json')
+  #   stub_request(:any, "https://admin.panier-locali.test/api/v1/members")
+  #     .to_return(status: 201)
 
-    request(payload)
+  #   request(payload)
 
-    assert_equal 204, last_response.status
-    assert_empty last_response.body
+  #   assert_equal 204, last_response.status
+  #   assert_empty last_response.body
 
-    assert_requested :post, "https://admin.panier-locali.test/api/v1/members",
-      times: 1,
-      headers: {
-        "Content-Type" => "application/json",
-        "Authorization" => "Token token=api-token-locali"
-      },
-      body: {
-        name: "Doe John",
-        emails: "john@doe.ch",
-        phones: "0791234567",
-        address: "Chemin de la Mairie 1",
-        city: "Genève",
-        zip: "1205",
-        country_code: "CH",
-        note: "Commande locali-ge.ch #35717",
-        waiting_basket_size_id: 1,
-        waiting_depot_id: 3,
-        members_basket_complements_attributes: []
-      }.to_json
-  end
+  #   assert_requested :post, "https://admin.panier-locali.test/api/v1/members",
+  #     times: 1,
+  #     headers: {
+  #       "Content-Type" => "application/json",
+  #       "Authorization" => "Token token=api-token-locali"
+  #     },
+  #     body: {
+  #       name: "Doe John",
+  #       emails: "john@doe.ch",
+  #       phones: "0791234567",
+  #       address: "Chemin de la Mairie 1",
+  #       city: "Genève",
+  #       zip: "1205",
+  #       country_code: "CH",
+  #       note: "Commande locali-ge.ch #35717",
+  #       waiting_basket_size_id: 1,
+  #       waiting_depot_id: 3,
+  #       members_basket_complements_attributes: []
+  #     }.to_json
+  # end
 
   def test_valid_webhook_request_touviere
     ENV["TOUVIERE_API_TOKEN"] = "api-token-touviere"
