@@ -20,7 +20,7 @@ class App < Sinatra::Base
       member_params = Webhook.handle!(payload)
       logger.info payload
       logger.info member_params
-    rescue => e
+    rescue Webhook::Error => e
       logger.info "#{e.class} - #{e.message}"
     end
 
