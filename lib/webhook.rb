@@ -5,6 +5,10 @@ require 'uri'
 
 class Webhook
   attr_reader :payload
+  class Error < StandardError; end
+  class UnkownStoreError < Error; end
+  class IgnoredStatusError < Error; end
+  class MemberCreationError < Error; end
 
   def self.handle!(payload)
     new(payload).handle!
@@ -28,13 +32,13 @@ class Webhook
     return if mapping
 
     store_name = @payload.dig("store", "name")
-    raise "Skipped, no mapping found for store: #{store_id} (#{store_name})"
+    raise UnkownStoreError, "No mapping found for store: #{store_id} (#{store_name})"
   end
 
   def ensure_status_completed!
     status = @payload["status"]
     unless status == "completed"
-      raise "Skipped, order status is not completed: #{status}"
+      raise IgnoredStatusError, "Order status is not completed: #{status}"
     end
   end
 
@@ -52,7 +56,7 @@ class Webhook
 
     response = http.request(request)
     unless response.code == "201"
-      raise "Failed to create member: #{response.code}"
+      raise MemberCreationError, "Failed to create member: #{response.code}"
     end
   end
 
