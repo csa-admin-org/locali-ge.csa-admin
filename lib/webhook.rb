@@ -103,10 +103,9 @@ class Webhook
   end
 
   def mapping_id_for(type)
-    mapping.last[type]&.each { |product_id, id|
-      return id if product_id.in?(product_ids)
-    }
-    nil
+    mapping.last[type]&.map { |product_id, id|
+      id if product_id.in?(product_ids)
+    }.compact.last
   end
 
   def mapping_ids_for(type)

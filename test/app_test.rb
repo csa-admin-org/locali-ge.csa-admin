@@ -120,7 +120,7 @@ class AppTest < Minitest::Test
         zip: "1205",
         country_code: "CH",
         note: "Commande locali-ge.ch #35715",
-        waiting_basket_size_id: 1,
+        waiting_basket_size_id: 2,
         waiting_depot_id: 3,
         members_basket_complements_attributes: [
           { basket_complement_id: 2, quantity: 1 },

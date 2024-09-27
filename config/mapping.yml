@@ -56,6 +56,7 @@ touviere:
   store_id: 34
   api_endpoint: https://admin.touviere.ch/api/v1/members
   basket_sizes:
+    34120: 2 # Panier mini (découverte)
     34834: 1 # Panier Couple
     34835: 3 # Panier Famille
   basket_complements:
