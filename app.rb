@@ -18,9 +18,11 @@ class App < Sinatra::Base
 
     begin
       member_params = Webhook.handle!(payload)
+    rescue Webhook::UnkownStoreError, Webhook::IgnoredStatusError => e
+      logger.info "#{e.class} - #{e.message}"
+    rescue Webhook::MemberCreationError => e
       logger.info payload
       logger.info member_params
-    rescue Webhook::Error => e
       logger.info "#{e.class} - #{e.message}"
     end
 
