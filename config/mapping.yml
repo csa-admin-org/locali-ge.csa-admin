@@ -68,6 +68,19 @@ touviere:
     34131: 3 # Jonction
     34129: 1 # Domaine de la Touvière
 
+lejardindemax:
+  store_id: 56
+  api_endpoint: https://admin.lejardindemax.ch/api/v1/members
+  basket_sizes:
+    36093: 2 # Petit cabas
+    36094: 1 # Grand cabas
+  depots:
+    36077: 4 # St.-Jean
+    36076: 2 # Plainpalais
+    36075: 5 # Thônex
+    36074: 7 # Cologny
+    36073: 1 # Jardin
+
 # locali:
 #   store_id: 33
 #   api_endpoint: https://admin.panier-locali.ch/api/v1/members
