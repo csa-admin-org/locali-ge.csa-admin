@@ -2,6 +2,7 @@ cocagne:
   store_id: 31
   api_endpoint: https://admin.cocagne.ch/api/v1/members
   basket_sizes:
+    34050: 2 # Petite part
     35087: 1 # Grande part
   basket_complements:
     34780: 9 # Oeufs 6 pièces
