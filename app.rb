@@ -13,7 +13,7 @@ class App < Sinatra::Base
   end
 
   get '/up' do
-    status 204
+    "<body style='background-color: green' />"
   end
 
   post '/webhook' do
