@@ -12,6 +12,10 @@ class App < Sinatra::Base
     @request_body = request.body.read
   end
 
+  get '/up' do
+    status 204
+  end
+
   post '/webhook' do
     verify_signature!
     payload = parse_payload
