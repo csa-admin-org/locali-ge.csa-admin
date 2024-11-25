@@ -28,7 +28,7 @@ class App < Sinatra::Base
       logger.info payload
       logger.info member_params
       logger.info "#{e.class} - #{e.message}"
-    rescue TypeError => e
+    rescue TypeError, NoMethodError => e
       logger.info payload
       logger.info "#{e.class} - #{e.message}"
     end
