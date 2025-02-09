@@ -72,6 +72,7 @@ class Webhook
       note: "Commande locali-ge.ch ##{@payload["id"]}",
       waiting_basket_size_id: mapping_id_for("basket_sizes"),
       waiting_depot_id: mapping_id_for("depots"),
+      waiting_delivery_cycle_id: mapping_id_for("delivery_cycles"),
       members_basket_complements_attributes: basket_complements
     }
   end
@@ -103,7 +104,9 @@ class Webhook
   end
 
   def mapping_id_for(type)
-    mapping.last[type]&.map { |product_id, id|
+    return unless mapping.last[type]
+
+    mapping.last[type].map { |product_id, id|
       id if product_id.in?(product_ids)
     }.compact.last
   end
