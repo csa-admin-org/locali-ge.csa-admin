@@ -56,6 +56,7 @@ class AppTest < Minitest::Test
         note: "Commande locali-ge.ch #35255",
         waiting_basket_size_id: 1,
         waiting_depot_id: 7,
+        waiting_delivery_cycle_id: nil,
         members_basket_complements_attributes: [
           { basket_complement_id:10, quantity:1 }
         ]
@@ -122,6 +123,7 @@ class AppTest < Minitest::Test
         note: "Commande locali-ge.ch #35715",
         waiting_basket_size_id: 2,
         waiting_depot_id: 3,
+        waiting_delivery_cycle_id: nil,
         members_basket_complements_attributes: [
           { basket_complement_id: 2, quantity: 1 },
           { basket_complement_id: 1, quantity: 1 }
