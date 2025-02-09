@@ -1,7 +1,5 @@
 source "https://rubygems.org"
 
-ruby file: ".ruby-version"
-
 gem "sinatra", github: "sinatra", require: "sinatra/base"
 gem "rackup"
 gem "puma"
