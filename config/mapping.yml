@@ -95,3 +95,25 @@ locali:
     34100: 3 # Plan les Ouates Sciers (à confirmer)
     34097: 2 # Meyrin Vergers
     34096: 6 # Conches
+
+ortie:
+  store_id: ??
+  api_endpoint: https://admin.ortie-microferme.ch//api/v1/members
+  basket_sizes:
+    36659: 1 # Normal
+  basket_complements:
+    36697: 1 # Pain du Jardin
+  depots:
+    36676: 4 # Eaux-Vives
+    36677: 1 # Grottes
+    36673: 10 # Livraison à Domicile - Meinier - Gy - Choulex - Corsinge 	
+    36674: 9 # Livraison à Domicile - ville
+    36675: 3 # Meinier
+    36672: 8 # Ortie - A la ferme
+    36678: 5 # Plainpalais - Accacias
+    36679: 6 # St-Jean
+    36681: 12 # Thônex / Sous-moulin
+    36680: 7 # Troinex
+  delivery_cycles:
+    36664: 1 # Toutes
+    36665: 4 # 1 semaine sur 2 (impairs)
