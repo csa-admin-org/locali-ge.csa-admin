@@ -1,5 +1,5 @@
 cocagne:
-  store_id: 31
+  store_id: 31 # Auteur
   api_endpoint: https://admin.cocagne.ch/api/v1/members
   basket_sizes:
     34050: 2 # Petite part
@@ -54,7 +54,7 @@ cocagne:
     33577: 48 # 12 ch. de la Verseuse 1219 Le Lignon
 
 touviere:
-  store_id: 34
+  store_id: 34 # Auteur
   api_endpoint: https://admin.touviere.ch/api/v1/members
   basket_sizes:
     34120: 2 # Panier mini (découverte)
@@ -70,7 +70,7 @@ touviere:
     34129: 1 # Domaine de la Touvière
 
 lejardindemax:
-  store_id: 56
+  store_id: 56 # Auteur
   api_endpoint: https://admin.lejardindemax.ch/api/v1/members
   basket_sizes:
     36093: 2 # Petit cabas
@@ -83,7 +83,7 @@ lejardindemax:
     36073: 1 # Jardin
 
 locali:
-  store_id: 33
+  store_id: 33 # Auteur
   api_endpoint: https://admin.panier-locali.ch/api/v1/members
   basket_sizes:
     34090: 10 # Panier Découverte Locali
@@ -97,7 +97,7 @@ locali:
     34096: 6 # Conches
 
 ortie:
-  store_id: ??
+  store_id: 75 # Auteur
   api_endpoint: https://admin.ortie-microferme.ch//api/v1/members
   basket_sizes:
     36659: 1 # Normal
@@ -106,7 +106,7 @@ ortie:
   depots:
     36676: 4 # Eaux-Vives
     36677: 1 # Grottes
-    36673: 10 # Livraison à Domicile - Meinier - Gy - Choulex - Corsinge 	
+    36673: 10 # Livraison à Domicile - Meinier - Gy - Choulex - Corsinge
     36674: 9 # Livraison à Domicile - ville
     36675: 3 # Meinier
     36672: 8 # Ortie - A la ferme
