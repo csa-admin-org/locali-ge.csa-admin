@@ -98,7 +98,7 @@ locali:
 
 ortie:
   store_id: 75 # Auteur
-  api_endpoint: https://admin.ortie-microferme.ch//api/v1/members
+  api_endpoint: https://admin.ortie-microferme.ch/api/v1/members
   basket_sizes:
     36659: 1 # Normal
   basket_complements:
@@ -117,3 +117,17 @@ ortie:
   delivery_cycles:
     36664: 1 # Toutes
     36665: 4 # 1 semaine sur 2 (impairs)
+
+lepetrichor:
+  store_id: 51 # Auteur
+  api_endpoint: https://admin.lepetrichor.ch/api/v1/members
+  basket_sizes:
+    37088: 1 # Petit
+    37089: 2 # Moyen
+    37224: 3 # Grand
+  depots:
+    35884: 5 # Livraison à domicile
+    35883: 3 # A la ferme
+    35882: 2 # Fraisiers
+    35881: 1 # Butte
+    35880: 6 # Perly
