@@ -43,6 +43,8 @@ env:
     - LEJARDINDEMAX_API_TOKEN
     - LOCALI_API_TOKEN
     - TOUVIERE_API_TOKEN
+    - ORTIE_API_TOKEN
+    - LEPETRICHOR_API_TOKEN
 
 # Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
 # "bin/kamal logs -r job" will tail logs from the first server in the job section.
