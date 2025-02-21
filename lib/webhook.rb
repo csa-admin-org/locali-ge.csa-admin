@@ -116,7 +116,7 @@ class Webhook
   def mapping_ids_for(type)
     ids = []
     mapping.last[type]&.each { |product_id, id|
-      ids << id if product_id.in?(product_ids)
+      ids += Array(id) if product_id.in?(product_ids)
     }
     ids
   end
