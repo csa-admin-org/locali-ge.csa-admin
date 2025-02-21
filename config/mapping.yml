@@ -86,7 +86,11 @@ locali:
   store_id: 33 # Auteur
   api_endpoint: https://admin.panier-locali.ch/api/v1/members
   basket_sizes:
-    34090: 10 # Panier Découverte Locali
+    34090: 5 # Soleil Complet
+  basket_complements:
+    34090:
+      - 16 # Pain (hebdo.)
+      - 17 # Produits laitiers (hebdo.)
   depots:
     35412: 9 # Vernier (à confirmer)
     35411: 7 # Meyrin Champs Fréchets (à confirmer)
