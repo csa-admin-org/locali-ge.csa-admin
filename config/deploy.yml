@@ -54,3 +54,5 @@ aliases:
 
 ssh:
   user: kamal
+
+retain_containers: 3
