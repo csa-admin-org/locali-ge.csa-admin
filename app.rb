@@ -24,6 +24,7 @@ class App < Sinatra::Base
 
     begin
       member_params = Webhook.handle!(payload)
+      logger.info "Member created with note: #{member_params[:note]}"
     rescue Webhook::UnkownStoreError, Webhook::IgnoredStatusError => e
       logger.info "#{e.class} - #{e.message}"
     rescue Webhook::MemberCreationError => e
