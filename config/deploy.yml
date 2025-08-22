@@ -51,3 +51,4 @@ env:
 #
 aliases:
   logs: app logs -n 100 -f
+  shell: app exec --interactive --reuse "bash"
