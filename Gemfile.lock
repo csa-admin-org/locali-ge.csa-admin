@@ -1,16 +1,16 @@
 GIT
   remote: https://github.com/sinatra/sinatra.git
-  revision: fa99a21461d4f1f5337b9b9d7a38a1b51c8f4e55
+  revision: f2ad45f7d2456172974a30d300e9f82424336e09
   specs:
-    rack-protection (4.1.1)
+    rack-protection (4.2.0)
       base64 (>= 0.1.0)
       logger (>= 1.6.0)
       rack (>= 3.0.0, < 4)
-    sinatra (4.1.1)
+    sinatra (4.2.0)
       logger (>= 1.6.0)
       mustermann (~> 3.0)
       rack (>= 3.0.0, < 4)
-      rack-protection (= 4.1.1)
+      rack-protection (= 4.2.0)
       rack-session (>= 2.0.0, < 3)
       tilt (~> 2.0)
 
