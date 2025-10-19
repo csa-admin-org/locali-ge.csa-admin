@@ -2,7 +2,7 @@
 service: locali-ge
 
 # Name of the container image.
-image: thibaudgg/locali-ge.csa-admin
+image: locali-ge.csa-admin
 
 # Deploy to these servers.
 servers:
@@ -18,13 +18,9 @@ proxy:
   host: locali-ge.csa-admin.org
   forward_headers: true
 
-# Credentials for your image host.
+# Registry is where your images are kept.
 registry:
-  username: thibaudgg
-
-  # Always use an access token rather than real password (pulled from .kamal/secrets).
-  password:
-    - KAMAL_REGISTRY_PASSWORD
+  server: localhost:5555
 
 # Configure builder setup.
 builder:
