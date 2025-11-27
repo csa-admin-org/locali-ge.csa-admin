@@ -67,7 +67,7 @@ class Webhook
       name: "#{billing["last_name"]} #{billing["first_name"]}",
       emails: billing["email"],
       phones: billing["phone"],
-      address: [billing["address_1"], billing["address_2"]].map(&:presence).compact.join(', '),
+      street: [billing["address_1"], billing["address_2"]].map(&:presence).compact.join(', '),
       city: billing["city"],
       zip: billing["postcode"],
       country_code: billing["country"],
