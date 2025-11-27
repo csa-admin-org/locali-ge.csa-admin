@@ -13,4 +13,3 @@ group :test do
   gem "rack-test"
   gem "webmock", require: "webmock/minitest"
 end
-
