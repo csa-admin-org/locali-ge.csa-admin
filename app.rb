@@ -5,9 +5,16 @@ Bundler.require(:default)
 
 require_relative 'lib/webhook'
 
+class SilenceHealthcheck < Rack::CommonLogger
+  def log(env, *)
+    super unless env['PATH_INFO'] == '/up'
+  end
+end
+
 class App < Sinatra::Base
   configure :production, :development do
-    enable :logging
+    use SilenceHealthcheck, $stderr
+    set :logging, nil
   end
 
   before do
