@@ -1,6 +1,8 @@
 source "https://rubygems.org"
 
-gem "sinatra", github: "sinatra", require: "sinatra/base"
+gem "rake"
+
+gem "sinatra"
 gem "rackup"
 gem "puma"
 

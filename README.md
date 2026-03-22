@@ -16,7 +16,7 @@ For each organization, the `<ORGANIZATION>_API_TOKEN` environment variable must 
 
 ```sh
 bundle install
-bundle exec ruby test/*_test.rb
+bundle exec rake test
 ```
 
 ## Author
