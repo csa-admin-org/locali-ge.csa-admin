@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'yaml'
-require 'net/http'
-require 'json'
-require 'uri'
+require "yaml"
+require "net/http"
+require "json"
+require "uri"
 
 class Webhook
   attr_reader :payload
@@ -58,7 +58,10 @@ class Webhook
 
     response = http.request(request)
     unless response.code == "201"
-      raise MemberCreationError, "Failed to create member: #{response.code}"
+      errors = JSON.parse(response.body).fetch("errors", {})
+        .map { |attr, msgs| "#{attr}: #{msgs.join(', ')}" }
+        .join("; ")
+      raise MemberCreationError, "Failed to create member (#{response.code}): #{errors}"
     end
   end
 
@@ -67,7 +70,7 @@ class Webhook
       name: "#{billing["last_name"]} #{billing["first_name"]}",
       emails: billing["email"],
       phones: billing["phone"],
-      street: [billing["address_1"], billing["address_2"]].map(&:presence).compact.join(', '),
+      street: [ billing["address_1"], billing["address_2"] ].map(&:presence).compact.join(", "),
       city: billing["city"],
       zip: billing["postcode"],
       country_code: billing["country"],
@@ -80,8 +83,8 @@ class Webhook
   end
 
   def mapping
-    @mapping ||= YAML.load_file('./config/mapping.yml').detect { |name, v|
-      v['store_id'] == store_id
+    @mapping ||= YAML.load_file("./config/mapping.yml").detect { |name, v|
+      v["store_id"] == store_id
     }
   end
 
