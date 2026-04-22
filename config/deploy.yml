@@ -34,6 +34,7 @@ env:
   clear:
     RACK_ENV: production
   secret:
+    - APPSIGNAL_PUSH_API_KEY
     - WEBHOOK_SECRET
     - COCAGNE_API_TOKEN
     - LEJARDINDEMAX_API_TOKEN

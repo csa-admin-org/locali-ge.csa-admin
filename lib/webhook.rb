@@ -7,6 +7,7 @@ require "uri"
 
 class Webhook
   attr_reader :payload
+
   class Error < StandardError; end
   class UnkownStoreError < Error; end
   class IgnoredStatusError < Error; end
@@ -39,30 +40,36 @@ class Webhook
 
   def ensure_status_completed!
     status = @payload["status"]
-    unless status == "completed"
-      raise IgnoredStatusError, "Order status is not completed: #{status}"
-    end
+    return if status == "completed"
+
+    raise IgnoredStatusError, "Order status is not completed: #{status}"
   end
 
   def submit_member!(params)
+    request = Net::HTTP::Post.new(api_uri.path, request_headers)
+    request.body = params.to_json
+
+    response = http_client.request(request)
+    return if response.code == "201"
+
+    errors = JSON.parse(response.body).fetch("errors", {})
+                 .map { |attr, msgs| "#{attr}: #{msgs.join(", ")}" }
+                 .join("; ")
+    raise MemberCreationError, "Failed to create member (#{response.code}): #{errors}"
+  end
+
+  def http_client
     http = Net::HTTP.new(api_uri.host, api_uri.port)
     http.use_ssl = true
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE if test_env?
+    http
+  end
 
-    headers = {
+  def request_headers
+    {
       "Content-Type" => "application/json",
       "Authorization" => "Token token=#{api_token}"
     }
-    request = Net::HTTP::Post.new(api_uri.path, headers)
-    request.body = params.to_json
-
-    response = http.request(request)
-    unless response.code == "201"
-      errors = JSON.parse(response.body).fetch("errors", {})
-        .map { |attr, msgs| "#{attr}: #{msgs.join(', ')}" }
-        .join("; ")
-      raise MemberCreationError, "Failed to create member (#{response.code}): #{errors}"
-    end
   end
 
   def member_params
@@ -83,9 +90,9 @@ class Webhook
   end
 
   def mapping
-    @mapping ||= YAML.load_file("./config/mapping.yml").detect { |name, v|
+    @mapping ||= YAML.load_file("./config/mapping.yml").detect do |_name, v|
       v["store_id"] == store_id
-    }
+    end
   end
 
   def organization
@@ -93,50 +100,58 @@ class Webhook
   end
 
   def api_token
-    ENV["#{organization.upcase}_API_TOKEN"]
+    ENV.fetch("#{organization.upcase}_API_TOKEN", nil)
   end
 
   def api_uri
     url = mapping.last["api_endpoint"]
-    url.gsub!(/\.ch/, ".test") if test_env?
+    url.gsub!(".ch", ".test") if test_env?
     URI.parse(url)
   end
 
   def basket_complements
-    mapping_ids_for("basket_complements").map { |id|
+    mapping_ids_for("basket_complements").map do |id|
       { basket_complement_id: id, quantity: 1 }
-    }
+    end
   end
 
   def mapping_id_for(type)
     return unless mapping.last[type]
 
-    mapping.last[type].map { |product_id, id|
+    mapping.last[type].map do |product_id, id|
       id if product_id.in?(product_ids)
-    }.compact.last
+    end.compact.last
   end
 
   def mapping_ids_for(type)
     ids = []
-    mapping.last[type]&.each { |product_id, id|
+    mapping.last[type]&.each do |product_id, id|
       ids += Array(id) if product_id.in?(product_ids)
-    }
+    end
     ids
   end
 
   def product_ids
-    @ids ||= begin
-      ids =[]
-      @payload.fetch("line_items").each { |item|
+    @product_ids ||= begin
+      ids = []
+      @payload.fetch("line_items").each do |item|
         ids << item["product_id"]
-        item["meta_data"].each { |meta|
-          if meta["key"] == "selected_item_post_id"
-            meta["value"].each { |v| v.values.each { |v| ids += Array(v["value"]) } }
-          end
-        }
-      }
+        ids += product_ids_from_meta(item["meta_data"])
+      end
       ids.map(&:to_i)
     end
+  end
+
+  def product_ids_from_meta(meta_data)
+    ids = []
+    meta_data.each do |meta|
+      next unless meta["key"] == "selected_item_post_id"
+
+      meta["value"].each do |item_data|
+        item_data.each_value { |id_data| ids += Array(id_data["value"]) }
+      end
+    end
+    ids
   end
 
   def billing

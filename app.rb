@@ -1,31 +1,34 @@
 # frozen_string_literal: true
 
-require 'bundler/setup'
+require "bundler/setup"
 Bundler.require(:default)
 
-require_relative 'lib/webhook'
+Appsignal.load(:sinatra) # Load the Sinatra integration
+Appsignal.start # Start AppSignal
 
-class SilenceHealthcheck < Rack::CommonLogger
+require_relative "lib/webhook"
+
+# Silence logs for non-webhook requests
+Rack::CommonLogger.prepend(Module.new do
   def log(env, *)
-    super unless env['PATH_INFO'] == '/up'
+    super if env["PATH_INFO"] == "/webhook"
   end
-end
+end)
 
 class App < Sinatra::Base
   configure :production, :development do
-    use SilenceHealthcheck, $stderr
-    set :logging, nil
+    enable :logging
   end
 
   before do
     @request_body = request.body.read
   end
 
-  get '/up' do
+  get "/up" do
     "<body style='background-color: green' />"
   end
 
-  post '/webhook' do
+  post "/webhook" do
     verify_signature!
     payload = parse_payload
 
@@ -34,13 +37,13 @@ class App < Sinatra::Base
       logger.info "Member created with note: #{member_params[:note]}"
     rescue Webhook::UnkownStoreError, Webhook::IgnoredStatusError => e
       logger.info "#{e.class} - #{e.message}"
-    rescue Webhook::MemberCreationError => e
-      logger.info payload
-      logger.info member_params
-      logger.info "#{e.class} - #{e.message}"
-    rescue TypeError, NoMethodError => e
-      logger.info payload
-      logger.info "#{e.class} - #{e.message}"
+    rescue Webhook::MemberCreationError, TypeError, NoMethodError => e
+      Appsignal.report_error(e) do
+        Appsignal.add_params(
+          payload: payload,
+          member_params: defined?(member_params) && member_params
+        )
+      end
     end
 
     status 204
@@ -49,20 +52,21 @@ class App < Sinatra::Base
   private
 
   def verify_signature!
-    signature = request.env['HTTP_X_WC_WEBHOOK_SIGNATURE']
-    secret = ENV['WEBHOOK_SECRET']
+    signature = request.env["HTTP_X_WC_WEBHOOK_SIGNATURE"]
+    secret = ENV.fetch("WEBHOOK_SECRET", nil)
 
     computed_hmac = Base64.strict_encode64(
-      OpenSSL::HMAC.digest('sha256', secret, @request_body))
+      OpenSSL::HMAC.digest("sha256", secret, @request_body)
+    )
 
-    unless signature && Rack::Utils.secure_compare(computed_hmac, signature)
-      halt 403, 'Forbidden'
-    end
+    return if signature && Rack::Utils.secure_compare(computed_hmac, signature)
+
+    halt 403, "Forbidden"
   end
 
   def parse_payload
     JSON.parse(@request_body)
   rescue JSON::ParserError
-    halt 400, 'Invalid JSON'
+    halt 400, "Invalid JSON"
   end
 end

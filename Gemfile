@@ -1,14 +1,20 @@
+# frozen_string_literal: true
+
 source "https://rubygems.org"
 
 gem "rake"
 
-gem "sinatra"
-gem "rackup"
 gem "puma"
+gem "rackup"
+gem "sinatra"
 
 gem "activesupport", require: "active_support/all"
-gem "logger"
 gem "json"
+gem "logger"
+
+gem "appsignal"
+
+gem "rubocop", require: false
 
 group :test do
   gem "minitest"
