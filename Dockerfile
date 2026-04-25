@@ -51,7 +51,9 @@ COPY --from=build /sinatra /sinatra
 
 # Run and own only the runtime files as a non-root user for security
 RUN groupadd --system --gid 1000 sinatra && \
-  useradd sinatra --uid 1000 --gid 1000 --create-home --shell /bin/bash
+  useradd sinatra --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
+  mkdir -p /sinatra/log && \
+  chown -R 1000:1000 /sinatra/log
 USER 1000:1000
 
 # Entrypoint prepares the database.
