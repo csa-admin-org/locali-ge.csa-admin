@@ -82,24 +82,20 @@ lejardindemax:
     36074: 7 # Cologny
     36073: 1 # Jardin
 
-locali:
+filierevergers:
   store_id: 33 # Auteur
-  api_endpoint: https://admin.panier-locali.ch/api/v1/members
+  api_endpoint: https://admin.filierealimentaire.ch/api/v1/members
   basket_sizes:
-    34090: 5 # Soleil Complet
+    34090: 11 # Légumes Soleil 2026
   basket_complements:
     34090:
       - 16 # Pain (hebdo.)
       - 17 # Produits laitiers (hebdo.)
   depots:
-    35412: 9 # Vernier (à confirmer)
-    35411: 7 # Meyrin Champs Fréchets (à confirmer)
     34101: 4 # Servette
     34099: 1 # Plainpalais
-    34100: 3 # Plan les Ouates Sciers (à confirmer)
+    34100: 3 # Magasin l'Epi'Sciers, Plan-les-Ouates
     34097: 2 # Meyrin Vergers
-    34096: 6 # Conches
-    37588: 9 # Les Avanchets - Cogerim
 
 ortie:
   store_id: 75 # Auteur
