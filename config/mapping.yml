@@ -82,7 +82,7 @@ lejardindemax:
     36074: 7 # Cologny
     36073: 1 # Jardin
 
-filierevergers:
+filierealimentaire:
   store_id: 33 # Auteur
   api_endpoint: https://admin.filierealimentaire.ch/api/v1/members
   basket_sizes:
@@ -138,7 +138,7 @@ culturelocale:
   store_id: 66 # Auteur
   api_endpoint: https://https://admin.cultureslocales.ch/api/v1/members
   basket_sizes:
-    36542: 1 # Moyen
+    36542: 1 # Petit
     36543: 2 # Grand
   depots:
     36577: 1 # Retrait à la ferme
