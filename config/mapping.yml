@@ -137,3 +137,31 @@ lepetrichor:
     35882: 2 # Fraisiers
     35881: 1 # Butte
     35880: 6 # Perly
+
+culturelocale:
+  store_id: 66 # Auteur
+  api_endpoint: https://https://admin.cultureslocales.ch/api/v1/members
+  basket_sizes:
+    36542: 1 # Moyen
+    36543: 2 # Grand
+  depots:
+    36577: 1 # Retrait à la ferme
+    36591: 2 # Soubeyran
+    36592: 3 # Saint-Jean
+    36585: 5 # Russin
+    36584: 6 # Satigny
+    36580: 7 # Confignon
+    36581: 8 # Coopérative Equilibre - Confignon
+    36579: 9 # Plan-Les-Ouates
+    36578: 10 # Carouge
+    36583: 12 # Avully
+    36597: 13 # Vernier
+    36590: 14 # Genève - Ouches
+    36593: 15 # Epicerie Le Nid - Ecoquartier de la Jonction
+    36589: 17 # Les Grottes
+    36587: 19 # Grand-Saconex
+    36586: 22 # Bellevue
+    36598: 23 # Genthod
+    36588: 24 # Meyrin - Les Vergers
+    36595: 27 # Grand-Lancy
+    38974: 31 # Acacias Vernets - PAV - Case 27
