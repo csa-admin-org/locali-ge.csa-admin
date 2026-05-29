@@ -66,10 +66,10 @@ class AppTest < Minitest::Test
                      }.to_json
   end
 
-  def test_valid_webhook_request_locali
-    ENV["LOCALI_API_TOKEN"] = "api-token-locali"
-    payload = File.read("test/fixtures/order_completed_locali.json")
-    stub_request(:any, "https://admin.panier-locali.test/api/v1/members")
+  def test_valid_webhook_request_filierealimentaire
+    ENV["FILIEREALIMENTAIRE_API_TOKEN"] = "api-token-filierealimentaire"
+    payload = File.read("test/fixtures/order_completed_filierealimentaire.json")
+    stub_request(:any, "https://admin.filierealimentaire.test/api/v1/members")
       .to_return(status: 201)
 
     request(payload)
@@ -77,11 +77,11 @@ class AppTest < Minitest::Test
     assert_equal 204, last_response.status
     assert_empty last_response.body
 
-    assert_requested :post, "https://admin.panier-locali.test/api/v1/members",
+    assert_requested :post, "https://admin.filierealimentaire.test/api/v1/members",
                      times: 1,
                      headers: {
                        "Content-Type" => "application/json",
-                       "Authorization" => "Token token=api-token-locali"
+                       "Authorization" => "Token token=api-token-filierealimentaire"
                      },
                      body: {
                        name: "Doe John",
@@ -92,7 +92,7 @@ class AppTest < Minitest::Test
                        zip: "1205",
                        country_code: "CH",
                        note: "Commande locali-ge.ch #35717",
-                       waiting_basket_size_id: 5,
+                       waiting_basket_size_id: 11,
                        waiting_depot_id: 3,
                        waiting_delivery_cycle_id: nil,
                        members_basket_complements_attributes: [
