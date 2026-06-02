@@ -15,6 +15,7 @@ gem "logger"
 gem "appsignal"
 
 gem "rubocop", require: false
+gem "ruby-lsp", require: false
 
 group :test do
   gem "minitest"
