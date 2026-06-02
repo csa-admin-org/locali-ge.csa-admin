@@ -186,4 +186,23 @@ class AppTest < Minitest::Test
     assert_equal 400, last_response.status
     assert_includes last_response.body, "Invalid JSON"
   end
+
+  def test_malformed_multipart_request_is_not_reported_to_appsignal
+    env = Rack::MockRequest.env_for(
+      "/",
+      method: "POST",
+      "CONTENT_TYPE" => "multipart/form-data; boundary=missing",
+      "CONTENT_LENGTH" => "1",
+      input: "x"
+    )
+
+    status, _headers, body = app.call(env)
+    response_body = +""
+    body.each { |chunk| response_body << chunk }
+    body.close if body.respond_to?(:close)
+
+    assert_equal 400, status
+    assert_includes response_body, "Invalid multipart/form-data"
+    assert_equal true, env["sinatra.skip_appsignal_error"]
+  end
 end

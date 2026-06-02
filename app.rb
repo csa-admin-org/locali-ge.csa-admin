@@ -28,6 +28,18 @@ class App < Sinatra::Base
     "<body style='background-color: green' />"
   end
 
+  error Sinatra::BadRequest do
+    env["sinatra.skip_appsignal_error"] = true
+    status 400
+
+    error = env["sinatra.error"]
+    if error.message && error.message != error.class.name
+      Rack::Utils.escape_html(error.message)
+    else
+      "<h1>Bad Request</h1>"
+    end
+  end
+
   post "/webhook" do
     verify_signature!
     payload = parse_payload
