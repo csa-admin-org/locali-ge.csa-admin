@@ -116,6 +116,7 @@ ortie:
     36681: 12 # Thônex / Sous-moulin
     36680: 7 # Troinex
     37471: 11 # Carouge
+    38992: 17 # Case 27 Vernets
   delivery_cycles:
     36664: 1 # Toutes
     36665: 4 # 1 semaine sur 2 (impairs)
