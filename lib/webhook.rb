@@ -34,8 +34,7 @@ class Webhook
   def ensure_mapping!
     return if mapping
 
-    store_name = @payload.dig("store", "name")
-    raise UnkownStoreError, "No mapping found for store: #{store_id} (#{store_name})"
+    raise UnkownStoreError, "No mapping found for store: #{store_ids.join(", ")} (#{store_name})"
   end
 
   def ensure_status_completed!
@@ -91,7 +90,7 @@ class Webhook
 
   def mapping
     @mapping ||= YAML.load_file("./config/mapping.yml").detect do |_name, v|
-      v["store_id"] == store_id
+      v["store_id"].in?(store_ids)
     end
   end
 
@@ -159,7 +158,35 @@ class Webhook
   end
 
   def store_id
-    @payload.dig("store", "id")
+    store_ids.first
+  end
+
+  def store_ids
+    ids = []
+    store = @payload["store"]
+    ids << store["id"] if store.is_a?(Hash) && store["id"].present?
+    ids += Array(@payload["stores"]).filter_map { |store| store["id"] if store.is_a?(Hash) && store["id"].present? }
+    ids << meta_data_value("_dokan_vendor_id")
+
+    ids.compact.map(&:to_i).uniq
+  end
+
+  def store_name
+    store_names.join(", ")
+  end
+
+  def store_names
+    names = []
+    store = @payload["store"]
+    names << store["name"] if store.is_a?(Hash)
+    names << store if store.is_a?(String)
+    names += Array(@payload["stores"]).filter_map { |store| store["name"] if store.is_a?(Hash) }
+
+    names.compact.uniq
+  end
+
+  def meta_data_value(key)
+    Array(@payload["meta_data"]).detect { |meta| meta.is_a?(Hash) && meta["key"] == key }&.fetch("value", nil)
   end
 
   def test_env?

@@ -138,6 +138,39 @@ class AppTest < Minitest::Test
                      }.to_json
   end
 
+  def test_valid_webhook_request_with_stores_array
+    ENV["COCAGNE_API_TOKEN"] = "api-token-cocagne"
+    payload = JSON.parse(File.read("test/fixtures/order_completed_cocagne.json"))
+    payload["store"] = []
+    payload["stores"] = [ { "id" => 31, "name" => "Jardins de Cocagne" } ]
+    stub_request(:any, "https://admin.cocagne.test/api/v1/members")
+      .to_return(status: 201)
+
+    request(payload.to_json)
+
+    assert_equal 204, last_response.status
+    assert_empty last_response.body
+
+    assert_requested :post, "https://admin.cocagne.test/api/v1/members", times: 1
+  end
+
+  def test_stores_array_without_mapping_is_unknown
+    payload = {
+      "store" => [],
+      "stores" => [
+        { "id" => 21, "name" => "Levain" },
+        { "id" => 49, "name" => "Karibou &amp; Budé" }
+      ],
+      "status" => "completed"
+    }
+
+    error = assert_raises(Webhook::UnkownStoreError) do
+      Webhook.handle!(payload)
+    end
+
+    assert_equal "No mapping found for store: 21, 49 (Levain, Karibou &amp; Budé)", error.message
+  end
+
   def test_valid_webhook_request_but_not_completed
     ENV["COCAGNE_API_TOKEN"] = "api-token-cocagne"
     payload = File.read("test/fixtures/order_processing_cocagne.json")
