@@ -15,6 +15,16 @@ Rack::CommonLogger.prepend(Module.new do
   end
 end)
 
+# Sinatra only maps some Rack parse errors to BadRequest. Oversized query/form
+# bodies raise QueryLimitError instead, which would 500 and hit AppSignal.
+Sinatra::Request.prepend(Module.new do
+  def params
+    super
+  rescue Rack::QueryParser::QueryLimitError => e
+    raise Sinatra::BadRequest, "Invalid query parameters: #{Rack::Utils.escape_html(e.message)}"
+  end
+end)
+
 class App < Sinatra::Base
   configure :production, :development do
     enable :logging

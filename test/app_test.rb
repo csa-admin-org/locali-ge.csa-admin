@@ -238,4 +238,24 @@ class AppTest < Minitest::Test
     assert_includes response_body, "Invalid multipart/form-data"
     assert_equal true, env["sinatra.skip_appsignal_error"]
   end
+
+  def test_oversized_form_request_is_not_reported_to_appsignal
+    form = 4097.times.map { |i| "p#{i}=1" }.join("&")
+    env = Rack::MockRequest.env_for(
+      "/wp-admin/admin-ajax.php",
+      method: "POST",
+      "CONTENT_TYPE" => "application/x-www-form-urlencoded",
+      "CONTENT_LENGTH" => form.bytesize.to_s,
+      input: form
+    )
+
+    status, _headers, body = app.call(env)
+    response_body = +""
+    body.each { |chunk| response_body << chunk }
+    body.close if body.respond_to?(:close)
+
+    assert_equal 400, status
+    assert_includes response_body, "exceeds limit"
+    assert_equal true, env["sinatra.skip_appsignal_error"]
+  end
 end
