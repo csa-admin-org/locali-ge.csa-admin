@@ -11,7 +11,39 @@ class Webhook
   class Error < StandardError; end
   class UnkownStoreError < Error; end
   class IgnoredStatusError < Error; end
-  class MemberCreationError < Error; end
+
+  class MemberCreationError < Error
+    attr_reader :status_code, :errors
+
+    def initialize(message = nil, status_code: nil, errors: {})
+      super(message)
+      @status_code = status_code
+      @errors = errors || {}
+    end
+
+    def duplicate_email?
+      return false unless unprocessable_entity?
+
+      email_messages = Array(errors["emails"] || errors[:emails])
+      return email_messages.any? { |msg| uniqueness_taken?(msg) } if email_messages.any?
+
+      uniqueness_taken?(message) && message.to_s.match?(/emails:/i)
+    end
+
+    private
+
+    def unprocessable_entity?
+      status_code.to_i == 422 || message.to_s.match?(/\(422\)/)
+    end
+
+    def uniqueness_taken?(msg)
+      normalized(msg).match?(/deja utilise|already(?: been)? taken/)
+    end
+
+    def normalized(text)
+      text.to_s.unicode_normalize(:nfkd).gsub(/\p{Mn}/, "").downcase
+    end
+  end
 
   def self.handle!(payload)
     new(payload).handle!
@@ -51,10 +83,15 @@ class Webhook
     response = http_client.request(request)
     return if response.code == "201"
 
-    errors = JSON.parse(response.body).fetch("errors", {})
-                 .map { |attr, msgs| "#{attr}: #{msgs.join(", ")}" }
-                 .join("; ")
-    raise MemberCreationError, "Failed to create member (#{response.code}): #{errors}"
+    parsed_errors = JSON.parse(response.body).fetch("errors", {})
+    errors = parsed_errors
+             .map { |attr, msgs| "#{attr}: #{msgs.join(", ")}" }
+             .join("; ")
+    raise MemberCreationError.new(
+      "Failed to create member (#{response.code}): #{errors}",
+      status_code: response.code,
+      errors: parsed_errors
+    )
   end
 
   def http_client
