@@ -171,6 +171,93 @@ class AppTest < Minitest::Test
     assert_equal "No mapping found for store: 21, 49 (Levain, Karibou &amp; Budé)", error.message
   end
 
+  def test_duplicate_email_updates_existing_member_without_reporting_to_appsignal
+    ENV["COCAGNE_API_TOKEN"] = "api-token-cocagne"
+    payload = File.read("test/fixtures/order_completed_cocagne.json")
+    member_body = {
+      name: "Doe John",
+      emails: "john@doe.ch",
+      phones: "079 123 45 67",
+      street: "Chemin de la Mairie, 1",
+      city: "Troinex",
+      zip: "1256",
+      country_code: "CH",
+      note: "Commande locali-ge.ch #35255",
+      waiting_basket_size_id: 1,
+      waiting_depot_id: 7,
+      waiting_delivery_cycle_id: nil,
+      members_basket_complements_attributes: [
+        { basket_complement_id: 10, quantity: 1 }
+      ]
+    }
+    headers = {
+      "Content-Type" => "application/json",
+      "Authorization" => "Token token=api-token-cocagne"
+    }
+
+    stub_request(:post, "https://admin.cocagne.test/api/v1/members")
+      .to_return(
+        status: 422,
+        headers: { "Content-Type" => "application/json" },
+        body: { errors: { emails: [ "est déjà utilisé(e)" ] } }.to_json
+      )
+    stub_request(:get, "https://admin.cocagne.test/api/v1/members")
+      .with(query: { emails: "john@doe.ch" })
+      .to_return(
+        status: 200,
+        headers: { "Content-Type" => "application/json" },
+        body: [ { id: 42 } ].to_json
+      )
+    stub_request(:patch, "https://admin.cocagne.test/api/v1/members/42")
+      .to_return(status: 200)
+
+    reported = false
+    Appsignal.stub(:report_error, ->(*) { reported = true }) do
+      request(payload)
+    end
+
+    assert_equal 204, last_response.status
+    assert_empty last_response.body
+    refute reported, "duplicate-email 422 must not be reported to AppSignal"
+
+    assert_requested :post, "https://admin.cocagne.test/api/v1/members",
+                     times: 1,
+                     headers: headers,
+                     body: member_body.to_json
+    assert_requested :get, "https://admin.cocagne.test/api/v1/members?emails=john@doe.ch",
+                     times: 1,
+                     headers: headers
+    assert_requested :patch, "https://admin.cocagne.test/api/v1/members/42",
+                     times: 1,
+                     headers: headers,
+                     body: member_body.to_json
+  end
+
+  def test_member_creation_failure_is_reported_to_appsignal
+    ENV["COCAGNE_API_TOKEN"] = "api-token-cocagne"
+    payload = File.read("test/fixtures/order_completed_cocagne.json")
+
+    stub_request(:post, "https://admin.cocagne.test/api/v1/members")
+      .to_return(
+        status: 422,
+        headers: { "Content-Type" => "application/json" },
+        body: { errors: { name: [ "can't be blank" ] } }.to_json
+      )
+
+    reported_errors = []
+    Appsignal.stub(:report_error, ->(error, *) { reported_errors << error }) do
+      request(payload)
+    end
+
+    assert_equal 204, last_response.status
+    assert_empty last_response.body
+    assert_equal 1, reported_errors.size
+    assert_instance_of Webhook::MemberCreationError, reported_errors.first
+    assert_match(/Failed to create member \(422\): name: can't be blank/, reported_errors.first.message)
+    assert_not_requested :get, "https://admin.cocagne.test/api/v1/members?emails=john@doe.ch"
+    assert_not_requested :patch, %r{https://admin.cocagne.test/api/v1/members/\d+}
+  end
+
   def test_valid_webhook_request_but_not_completed
     ENV["COCAGNE_API_TOKEN"] = "api-token-cocagne"
     payload = File.read("test/fixtures/order_processing_cocagne.json")

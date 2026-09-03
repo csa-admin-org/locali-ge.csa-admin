@@ -45,16 +45,82 @@ class Webhook
   end
 
   def submit_member!(params)
-    request = Net::HTTP::Post.new(api_uri.path, request_headers)
-    request.body = params.to_json
-
-    response = http_client.request(request)
+    response = api_request(Net::HTTP::Post, api_uri, params)
     return if response.code == "201"
 
-    errors = JSON.parse(response.body).fetch("errors", {})
-                 .map { |attr, msgs| "#{attr}: #{msgs.join(", ")}" }
-                 .join("; ")
-    raise MemberCreationError, "Failed to create member (#{response.code}): #{errors}"
+    if duplicate_email_error?(response)
+      update_existing_member!(params)
+      return
+    end
+
+    raise MemberCreationError, member_failure_message(response, "Failed to create member")
+  end
+
+  def update_existing_member!(params)
+    member = find_existing_member!(params[:emails])
+    response = api_request(Net::HTTP::Patch, member_uri(member.fetch("id")), params)
+    return if response.code.start_with?("20")
+
+    raise MemberCreationError, member_failure_message(response, "Failed to update member")
+  end
+
+  def find_existing_member!(email)
+    uri = api_uri
+    uri.query = URI.encode_www_form(emails: email)
+    response = api_request(Net::HTTP::Get, uri)
+    unless response.code == "200"
+      raise MemberCreationError, member_failure_message(response, "Failed to find existing member")
+    end
+
+    member = parse_members(response.body).find { |candidate| candidate.is_a?(Hash) && candidate["id"] }
+    return member if member
+
+    raise MemberCreationError, "Failed to find existing member for duplicate email"
+  end
+
+  def parse_members(body)
+    data = JSON.parse(body)
+    case data
+    when Array
+      data
+    when Hash
+      data.key?("id") ? [ data ] : Array(data["members"])
+    else
+      []
+    end
+  end
+
+  def duplicate_email_error?(response)
+    return false unless response.code == "422"
+
+    Array(response_errors(response)["emails"]).any? { |message| duplicate_email_message?(message) }
+  end
+
+  def duplicate_email_message?(message)
+    message.to_s.match?(/déjà utilisé|already been taken/i)
+  end
+
+  def response_errors(response)
+    JSON.parse(response.body).fetch("errors", {})
+  rescue JSON::ParserError
+    {}
+  end
+
+  def member_failure_message(response, prefix)
+    errors = response_errors(response)
+             .map { |attr, msgs| "#{attr}: #{Array(msgs).join(", ")}" }
+             .join("; ")
+    "#{prefix} (#{response.code}): #{errors}"
+  end
+
+  def api_request(http_class, uri, body = nil)
+    request = http_class.new(uri.request_uri, request_headers)
+    request.body = body.to_json unless body.nil?
+    http_client.request(request)
+  end
+
+  def member_uri(id)
+    URI.parse("#{api_uri}/#{id}")
   end
 
   def http_client
