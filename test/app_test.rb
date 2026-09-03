@@ -31,6 +31,21 @@ class AppTest < Minitest::Test
     post "/webhook", payload
   end
 
+  def with_reported_appsignal_errors
+    reported = []
+    original = Appsignal.method(:report_error)
+
+    Appsignal.define_singleton_method(:report_error) do |error = nil, **_kwargs, &block|
+      reported << error
+      block&.call
+    end
+
+    yield
+    reported
+  ensure
+    Appsignal.define_singleton_method(:report_error, original)
+  end
+
   def test_valid_webhook_request_cocagne
     ENV["COCAGNE_API_TOKEN"] = "api-token-cocagne"
     payload = File.read("test/fixtures/order_completed_cocagne.json")
@@ -190,6 +205,108 @@ class AppTest < Minitest::Test
 
     assert_equal 204, last_response.status
     assert_empty last_response.body
+  end
+
+  def test_duplicate_email_member_creation_is_not_reported_to_appsignal
+    ENV["COCAGNE_API_TOKEN"] = "api-token-cocagne"
+    payload = File.read("test/fixtures/order_completed_cocagne.json")
+    stub_request(:any, "https://admin.cocagne.test/api/v1/members")
+      .to_return(
+        status: 422,
+        body: { errors: { emails: [ "est déjà utilisé(e)" ] } }.to_json
+      )
+
+    reported = with_reported_appsignal_errors { request(payload) }
+
+    assert_equal 204, last_response.status
+    assert_empty last_response.body
+    assert_empty reported
+  end
+
+  def test_duplicate_email_already_taken_is_not_reported_to_appsignal
+    ENV["COCAGNE_API_TOKEN"] = "api-token-cocagne"
+    payload = File.read("test/fixtures/order_completed_cocagne.json")
+    stub_request(:any, "https://admin.cocagne.test/api/v1/members")
+      .to_return(
+        status: 422,
+        body: { errors: { emails: [ "has already been taken" ] } }.to_json
+      )
+
+    reported = with_reported_appsignal_errors { request(payload) }
+
+    assert_equal 204, last_response.status
+    assert_empty reported
+  end
+
+  def test_other_member_creation_422_is_reported_to_appsignal
+    ENV["COCAGNE_API_TOKEN"] = "api-token-cocagne"
+    payload = File.read("test/fixtures/order_completed_cocagne.json")
+    stub_request(:any, "https://admin.cocagne.test/api/v1/members")
+      .to_return(
+        status: 422,
+        body: { errors: { waiting_depot_id: [ "n'est pas valide" ] } }.to_json
+      )
+
+    reported = with_reported_appsignal_errors { request(payload) }
+
+    assert_equal 204, last_response.status
+    assert_equal 1, reported.size
+    assert_instance_of Webhook::MemberCreationError, reported.first
+    assert_includes reported.first.message, "waiting_depot_id"
+    refute reported.first.duplicate_email?
+  end
+
+  def test_member_creation_server_error_is_reported_to_appsignal
+    ENV["COCAGNE_API_TOKEN"] = "api-token-cocagne"
+    payload = File.read("test/fixtures/order_completed_cocagne.json")
+    stub_request(:any, "https://admin.cocagne.test/api/v1/members")
+      .to_return(status: 500, body: { errors: {} }.to_json)
+
+    reported = with_reported_appsignal_errors { request(payload) }
+
+    assert_equal 204, last_response.status
+    assert_equal 1, reported.size
+    assert_instance_of Webhook::MemberCreationError, reported.first
+    refute reported.first.duplicate_email?
+  end
+
+  def test_duplicate_email_error_detection
+    french = Webhook::MemberCreationError.new(
+      "Failed to create member (422): emails: est déjà utilisé(e)",
+      status_code: "422",
+      errors: { "emails" => [ "est déjà utilisé(e)" ] }
+    )
+    english = Webhook::MemberCreationError.new(
+      "Failed to create member (422): emails: has already been taken",
+      status_code: "422",
+      errors: { "emails" => [ "has already been taken" ] }
+    )
+    other422 = Webhook::MemberCreationError.new(
+      "Failed to create member (422): waiting_depot_id: n'est pas valide",
+      status_code: "422",
+      errors: { "waiting_depot_id" => [ "n'est pas valide" ] }
+    )
+    server_error = Webhook::MemberCreationError.new(
+      "Failed to create member (500): ",
+      status_code: "500",
+      errors: {}
+    )
+
+    message_only = Webhook::MemberCreationError.new(
+      "Failed to create member (422): emails: est déjà utilisé(e)"
+    )
+    invalid_email = Webhook::MemberCreationError.new(
+      "Failed to create member (422): emails: n'est pas valide",
+      status_code: "422",
+      errors: { "emails" => [ "n'est pas valide" ] }
+    )
+
+    assert french.duplicate_email?
+    assert english.duplicate_email?
+    assert message_only.duplicate_email?
+    refute other422.duplicate_email?
+    refute server_error.duplicate_email?
+    refute invalid_email.duplicate_email?
   end
 
   def test_invalid_signature

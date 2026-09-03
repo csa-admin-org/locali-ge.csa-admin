@@ -60,11 +60,15 @@ class App < Sinatra::Base
     rescue Webhook::UnkownStoreError, Webhook::IgnoredStatusError => e
       logger.info "#{e.class} - #{e.message}"
     rescue Webhook::MemberCreationError, TypeError, NoMethodError => e
-      Appsignal.report_error(e) do
-        Appsignal.add_params(
-          payload: payload,
-          member_params: defined?(member_params) && member_params
-        )
+      if e.is_a?(Webhook::MemberCreationError) && e.duplicate_email?
+        logger.info "#{e.class} - #{e.message}"
+      else
+        Appsignal.report_error(e) do
+          Appsignal.add_params(
+            payload: payload,
+            member_params: defined?(member_params) && member_params
+          )
+        end
       end
     end
 
