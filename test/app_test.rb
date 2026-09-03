@@ -19,6 +19,19 @@ class AppTest < Minitest::Test
     ENV["WEBHOOK_SECRET"] = @secret
   end
 
+  def capture_appsignal_reports
+    reports = []
+    singleton = class << Appsignal; self; end
+    singleton.alias_method :__original_report_error, :report_error
+    singleton.define_method(:report_error) { |error, **| reports << error }
+    yield
+    reports
+  ensure
+    singleton.remove_method :report_error
+    singleton.alias_method :report_error, :__original_report_error
+    singleton.remove_method :__original_report_error
+  end
+
   def request(payload, secret: nil)
     secret ||= @secret
     signature = Base64.strict_encode64(
@@ -211,14 +224,11 @@ class AppTest < Minitest::Test
     stub_request(:patch, "https://admin.cocagne.test/api/v1/members/42")
       .to_return(status: 200)
 
-    reported = false
-    Appsignal.stub(:report_error, ->(*) { reported = true }) do
-      request(payload)
-    end
+    reported_errors = capture_appsignal_reports { request(payload) }
 
     assert_equal 204, last_response.status
     assert_empty last_response.body
-    refute reported, "duplicate-email 422 must not be reported to AppSignal"
+    assert_empty reported_errors, "duplicate-email 422 must not be reported to AppSignal"
 
     assert_requested :post, "https://admin.cocagne.test/api/v1/members",
                      times: 1,
@@ -244,10 +254,7 @@ class AppTest < Minitest::Test
         body: { errors: { name: [ "can't be blank" ] } }.to_json
       )
 
-    reported_errors = []
-    Appsignal.stub(:report_error, ->(error, *) { reported_errors << error }) do
-      request(payload)
-    end
+    reported_errors = capture_appsignal_reports { request(payload) }
 
     assert_equal 204, last_response.status
     assert_empty last_response.body
