@@ -13,6 +13,7 @@ gem "json"
 gem "logger"
 
 gem "appsignal"
+gem "kamal", "2.12.0", require: false
 
 gem "rubocop", require: false
 gem "ruby-lsp", require: false

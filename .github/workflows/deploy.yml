@@ -1,0 +1,72 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [Tests]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Production
+    if: >-
+      github.repository == 'csa-admin-org/locali-ge.csa-admin' &&
+      (
+        (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+        (github.event.workflow_run.conclusion == 'success' &&
+         github.event.workflow_run.head_repository.full_name == github.repository)
+      )
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 45
+    environment: production
+
+    steps:
+      - name: Check secrets
+        env:
+          KAMAL_SSH_PRIVATE_KEY: ${{ secrets.KAMAL_SSH_PRIVATE_KEY }}
+        run: |
+          if [ -z "${KAMAL_SSH_PRIVATE_KEY:-}" ]; then
+            echo "Missing GitHub Environment secret KAMAL_SSH_PRIVATE_KEY on 'production'."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.KAMAL_SSH_PRIVATE_KEY }}
+
+      - name: Trust isle
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          {
+            echo "Host *"
+            echo "  StrictHostKeyChecking no"
+            echo "  CheckHostIP no"
+            echo "  UserKnownHostsFile /dev/null"
+          } > ~/.ssh/config
+          chmod 600 ~/.ssh/config
+
+      - name: Deploy
+        run: |
+          echo "Deploying $(git rev-parse HEAD)"
+          bundle exec kamal deploy
