@@ -28,13 +28,41 @@ jobs:
     timeout-minutes: 45
     environment: production
 
+    env:
+      APPSIGNAL_PUSH_API_KEY: ${{ secrets.APPSIGNAL_PUSH_API_KEY }}
+      WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+      COCAGNE_API_TOKEN: ${{ secrets.COCAGNE_API_TOKEN }}
+      LEJARDINDEMAX_API_TOKEN: ${{ secrets.LEJARDINDEMAX_API_TOKEN }}
+      FILIEREALIMENTAIRE_API_TOKEN: ${{ secrets.FILIEREALIMENTAIRE_API_TOKEN }}
+      TOUVIERE_API_TOKEN: ${{ secrets.TOUVIERE_API_TOKEN }}
+      ORTIE_API_TOKEN: ${{ secrets.ORTIE_API_TOKEN }}
+      LEPETRICHOR_API_TOKEN: ${{ secrets.LEPETRICHOR_API_TOKEN }}
+      CULTURESLOCALES_API_TOKEN: ${{ secrets.CULTURESLOCALES_API_TOKEN }}
+
     steps:
       - name: Check secrets
         env:
           KAMAL_SSH_PRIVATE_KEY: ${{ secrets.KAMAL_SSH_PRIVATE_KEY }}
         run: |
-          if [ -z "${KAMAL_SSH_PRIVATE_KEY:-}" ]; then
-            echo "Missing GitHub Environment secret KAMAL_SSH_PRIVATE_KEY on 'production'."
+          missing=
+          for name in \
+            KAMAL_SSH_PRIVATE_KEY \
+            APPSIGNAL_PUSH_API_KEY \
+            WEBHOOK_SECRET \
+            COCAGNE_API_TOKEN \
+            LEJARDINDEMAX_API_TOKEN \
+            FILIEREALIMENTAIRE_API_TOKEN \
+            TOUVIERE_API_TOKEN \
+            ORTIE_API_TOKEN \
+            LEPETRICHOR_API_TOKEN \
+            CULTURESLOCALES_API_TOKEN
+          do
+            if [ -z "${!name}" ]; then
+              missing="$missing $name"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "Missing GitHub Environment secrets on 'production':$missing"
             exit 1
           fi
 
