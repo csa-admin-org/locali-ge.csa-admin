@@ -26,8 +26,19 @@ Sinatra::Request.prepend(Module.new do
 end)
 
 class App < Sinatra::Base
+  REQUIRED_BOOT_ENV = %w[WEBHOOK_SECRET APPSIGNAL_PUSH_API_KEY].freeze
+
+  def self.require_boot_env!
+    missing = REQUIRED_BOOT_ENV.select { |name| ENV[name].to_s.strip.empty? }
+    raise "Missing required environment variables: #{missing.join(", ")}" if missing.any?
+  end
+
   configure :production, :development do
     enable :logging
+  end
+
+  configure :production do
+    require_boot_env!
   end
 
   before do
@@ -85,7 +96,9 @@ class App < Sinatra::Base
       OpenSSL::HMAC.digest("sha256", secret, @request_body)
     )
 
-    return if signature && Rack::Utils.secure_compare(computed_hmac, signature)
+    return if signature.present? && Rack::Utils.secure_compare(computed_hmac, signature)
+
+    warn "Webhook signature mismatch (body #{@request_body.bytesize} bytes)" if signature.present?
 
     halt 403, "Forbidden"
   end

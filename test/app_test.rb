@@ -19,6 +19,14 @@ class AppTest < Minitest::Test
     ENV["WEBHOOK_SECRET"] = @secret
   end
 
+  def restore_env(key, value)
+    if value.nil?
+      ENV.delete(key)
+    else
+      ENV[key] = value
+    end
+  end
+
   def request(payload, secret: nil)
     secret ||= @secret
     signature = Base64.strict_encode64(
@@ -309,23 +317,67 @@ class AppTest < Minitest::Test
     refute invalid_email.duplicate_email?
   end
 
+  def test_require_boot_env_raises_when_blank
+    original_webhook = ENV.fetch("WEBHOOK_SECRET", nil)
+    original_appsignal = ENV.fetch("APPSIGNAL_PUSH_API_KEY", nil)
+    ENV["WEBHOOK_SECRET"] = ""
+    ENV.delete("APPSIGNAL_PUSH_API_KEY")
+
+    error = assert_raises(RuntimeError) { App.require_boot_env! }
+
+    assert_includes error.message, "WEBHOOK_SECRET"
+    assert_includes error.message, "APPSIGNAL_PUSH_API_KEY"
+  ensure
+    restore_env("WEBHOOK_SECRET", original_webhook)
+    restore_env("APPSIGNAL_PUSH_API_KEY", original_appsignal)
+  end
+
+  def test_require_boot_env_raises_when_whitespace
+    original_webhook = ENV.fetch("WEBHOOK_SECRET", nil)
+    original_appsignal = ENV.fetch("APPSIGNAL_PUSH_API_KEY", nil)
+    ENV["WEBHOOK_SECRET"] = "  "
+    ENV["APPSIGNAL_PUSH_API_KEY"] = "key"
+
+    error = assert_raises(RuntimeError) { App.require_boot_env! }
+
+    assert_includes error.message, "WEBHOOK_SECRET"
+    refute_includes error.message, "APPSIGNAL_PUSH_API_KEY"
+  ensure
+    restore_env("WEBHOOK_SECRET", original_webhook)
+    restore_env("APPSIGNAL_PUSH_API_KEY", original_appsignal)
+  end
+
+  def test_require_boot_env_passes_when_set
+    original_webhook = ENV.fetch("WEBHOOK_SECRET", nil)
+    original_appsignal = ENV.fetch("APPSIGNAL_PUSH_API_KEY", nil)
+    ENV["WEBHOOK_SECRET"] = "secret"
+    ENV["APPSIGNAL_PUSH_API_KEY"] = "key"
+
+    App.require_boot_env!
+  ensure
+    restore_env("WEBHOOK_SECRET", original_webhook)
+    restore_env("APPSIGNAL_PUSH_API_KEY", original_appsignal)
+  end
+
   def test_invalid_signature
     payload = { "test_key" => "test_value" }.to_json
-
-    request(payload, secret: "wrong_secret")
+    _stdout, stderr = capture_io { request(payload, secret: "wrong_secret") }
 
     assert_equal 403, last_response.status
     assert_equal "Forbidden", last_response.body
+    assert_match(/Webhook signature mismatch \(body #{payload.bytesize} bytes\)/, stderr)
   end
 
   def test_missing_signature_header
     payload = { "test_key" => "test_value" }.to_json
-
-    header "Content-Type", "application/json"
-    post "/webhook", payload
+    _stdout, stderr = capture_io do
+      header "Content-Type", "application/json"
+      post "/webhook", payload
+    end
 
     assert_equal 403, last_response.status
     assert_equal "Forbidden", last_response.body
+    refute_match(/Webhook signature mismatch/, stderr)
   end
 
   def test_invalid_json_payload
