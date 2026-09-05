@@ -15,8 +15,8 @@ For each organization, the `<ORGANIZATION>_API_TOKEN` environment variable must 
 ## Testing
 
 ```sh
-bundle install
-bundle exec rake test
+mise bootstrap
+mise run test   # or: mise run t
 ```
 
 ## Author

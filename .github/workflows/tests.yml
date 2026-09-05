@@ -2,18 +2,26 @@ name: Tests
 
 on: push
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BUNDLE_FROZEN: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v7
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Bootstrap
+        uses: jdx/mise-action@v4
         with:
-          bundler-cache: true
+          bootstrap: true
+          cache_key: "{{default}}-${{ hashFiles('Gemfile.lock') }}"
 
       - name: Run tests
-        run: |
-          bundle exec ruby test/*_test.rb
+        run: mise run test

@@ -72,10 +72,11 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           persist-credentials: false
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Bootstrap
+        uses: jdx/mise-action@v4
         with:
-          bundler-cache: true
+          bootstrap: true
+          cache_key: "{{default}}-${{ hashFiles('Gemfile.lock') }}"
 
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.10.0

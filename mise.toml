@@ -1,0 +1,13 @@
+min_version = { hard = "2026.8.0" }
+
+[tools]
+ruby = "4.0.6"
+
+[tasks.bootstrap]
+description = "Install gems"
+run = "bin/setup"
+
+[tasks.test]
+description = "Run tests"
+alias = "t"
+run = "bundle exec ruby test/app_test.rb"
